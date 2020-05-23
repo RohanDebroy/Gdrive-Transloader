@@ -33,12 +33,11 @@ def requests_retry_session(
 
 
 def get_fileName(url):
-    res = requests.get(url,stream=True)
+    res = requests_retry_session().get(url,stream=True)
     try:
         if 'filename' in res.headers.get('Content-Disposition'):
             fileName = res.headers.get(
                 'Content-Disposition').split('filename=')[1].split(';')[0].replace('"', '')
-
         else:
             raise Exception
     except:
@@ -67,7 +66,7 @@ def download(url):
         url = gdrive(url)
 
     try:
-        print("[*] Downloading : The file is being Downloaded.")
+        print("[*] Downloading : The file is being Downloaded. using smartpydl")
         obj = SmartDL(urls=url,dest='data/',progress_bar=True)
         obj.start()
         fileName=obj.get_dest()
@@ -76,8 +75,6 @@ def download(url):
         print("[*] Successful : File has been Download Successfully to "+fileName)
         return newfileName
         
-
-
     except:
         print("[*] Downloading : The file is being Downloaded.")
         with requests_retry_session().get(url=url, stream=True) as res:
