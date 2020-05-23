@@ -32,8 +32,10 @@ def requests_retry_session(
 
 
 
-def get_fileName(url):
-    res = requests.get(url,stream=True)
+def get_fileName(url,res=None):
+    if res==None:
+        res = requests.get(url,stream=True)
+
     try:
         if 'filename' in res.headers.get('Content-Disposition'):
             fileName = res.headers.get(
@@ -81,7 +83,7 @@ def download(url):
     except:
         # print("[*] Downloading : The file is being Downloaded.")
         with requests.get(url=url, stream=True) as res:
-            fileName = get_fileName(url)
+            fileName = get_fileName(url,res)
 
             totalFileSize = int(res.headers.get('content-length'))
             chunk_size = 1024
