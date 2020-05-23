@@ -8,6 +8,7 @@ from urllib3.util.retry import Retry
 from pySmartDL import SmartDL
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+import shutil
 
 
 def requests_retry_session(
@@ -126,16 +127,16 @@ def uploader(srcFile, teamDriveId="0ABhY56uyjkd5Uk9PVA", parentDirId="1j2hZP0wW4
 
     return str(file["alternateLink"])
 
+def url_shorten(url):
+    url = "http://ouo.io/api/riEs7aPT?s={}".format(url)
+    with requests.get(url) as response:
+        return response.text
 
 def upDown(url):
     try:
         fileName ='data/' + download(url)
         gdrive_link = uploader(fileName)
+        shutil.rmtree(fileName)
         return url_shorten(gdrive_link)
     except:
         return 'Check the Url or Try after sometimes'
-
-def url_shorten(url):
-    url = "http://ouo.io/api/riEs7aPT?s={}".format(url)
-    with requests.get(url) as response:
-        return response.text

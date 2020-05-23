@@ -1,6 +1,7 @@
 from updowndl import app, queue, conn
 from flask import request, jsonify
 from rq.job import Job
+from rq.registry import FinishedJobRegistry
 from .downloader import upDown
 import shutil
 import glob
@@ -36,6 +37,7 @@ def result():
     if job.is_finished:
         description = job.description.replace(
             "updowndl.downloader.upDown('", '').replace("')", '')
+        
         return jsonify(job_id=job_id, description=description, downloadUrl=job.return_value, status='Finished'), 200
     elif job.is_queued:
         return jsonify(job_id=None, description=None, downloadUrl=None, status='Queued')
@@ -50,7 +52,9 @@ def admin(p):
     if p == 'clean':
         shutil.rmtree("data/")
         return 'Done'
+
     elif p =='list':
         x = glob.glob("data/*")
-        print(x)
+        
         return jsonify(files=tuple(x))
+
