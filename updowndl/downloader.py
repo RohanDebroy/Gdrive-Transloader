@@ -43,7 +43,7 @@ def get_fileName(url):
     except:
         fileName = os.path.basename(urlparse(unquote(res.url)).path)
 
-    return fileName
+    return fileName,res.url
 
 
 def gdrive(url):
@@ -67,10 +67,10 @@ def download(url):
 
     try:
         print("[*] Downloading : The file is being Downloaded. using smartpydl")
+        newfileName, url = get_fileName(url)
         obj = SmartDL(urls=url,dest='data/',progress_bar=True)
         obj.start()
         fileName=obj.get_dest()
-        newfileName = get_fileName(url)
         os.rename(fileName,"data/"+newfileName)
         print("[*] Successful : File has been Download Successfully to "+fileName)
         return newfileName
