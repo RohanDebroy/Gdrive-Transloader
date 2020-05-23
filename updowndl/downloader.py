@@ -80,7 +80,7 @@ def download(url):
         
     except:
         # print("[*] Downloading : The file is being Downloaded.")
-        with requests_retry_session().get(url=url, stream=True) as res:
+        with requests.get(url=url, stream=True) as res:
             fileName = get_fileName(url)
 
             totalFileSize = int(res.headers.get('content-length'))
