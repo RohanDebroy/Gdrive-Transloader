@@ -9,6 +9,7 @@ from pySmartDL import SmartDL
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 import shutil
+from fake_useragent import UserAgent
 
 
 def requests_retry_session(
@@ -32,9 +33,8 @@ def requests_retry_session(
 
 
 
-def get_fileName(url,res=None):
-    if res==None:
-        res = requests.get(url,stream=True)
+def get_fileName(url):
+    res = requests.get(url,stream=True, allow_redirects=True, headers = {"User-Agent":UserAgent().random})
 
     try:
         if 'filename' in res.headers.get('Content-Disposition'):
@@ -80,20 +80,19 @@ def download(url):
         print("[*] Successful : File has been Download Successfully to "+fileName)
         return newfileName
         
-    except:
-        # print("[*] Downloading : The file is being Downloaded.")
-        with requests.get(url=url, stream=True) as res:
-            fileName = get_fileName(url,res)
+    except Exception:
+        print("[*] Downloading : The file is being Downloaded.")
+        res = requests_retry_session().get(url=url, allow_redirects=True, headers = {"User-Agent":UserAgent().ff})
+        fileName = get_fileName(url)
 
-            totalFileSize = int(res.headers.get('content-length'))
-            chunk_size = 1024
-            num_bars = int(totalFileSize/chunk_size)
+        totalFileSize = int(res.headers.get('content-length'))
+        chunk_size = 1024
+        num_bars = int(totalFileSize/chunk_size)
+        with open('data/'+fileName, 'wb') as out_file:
+            for data in tqdm(res.iter_content(chunk_size=chunk_size),total=num_bars, unit='KB', desc=fileName, leave=True, file=sys.stdout):                
+                out_file.write(data)
 
-            with open('data/'+fileName, 'wb') as out_file:
-                for data in tqdm(res.iter_content(chunk_size=chunk_size),total=num_bars, unit='KB', desc=fileName, leave=True, file=sys.stdout):
-                
-                    out_file.write(data)
-            print("[*] Successful : File has been Download Successfully to "+fileName)
+        print("[*] Successful : File has been Download Successfully to "+fileName)
         return fileName
 
 def authenticate():
